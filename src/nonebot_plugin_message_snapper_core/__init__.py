@@ -1,45 +1,14 @@
-from nonebot import logger, require
-from nonebot.plugin import PluginMetadata, inherit_supported_adapters
+from nonebot.plugin import PluginMetadata
 
-require("nonebot_plugin_uninfo")
-require("nonebot_plugin_alconna")
-require("nonebot_plugin_localstore")
-require("nonebot_plugin_apscheduler")
-from .config import Config
+from .cache import CacheManager
+from .service import MessageSnapper
 
 __plugin_meta__ = PluginMetadata(
-    name="名称",
-    description="描述",
-    usage="用法",
-    type="application",  # library
+    name="消息快照核心库",
+    description="将消息转换为图片快照的核心库，可供其他插件复用",
+    usage="from nonebot_plugin_message_snapper_core import MessageSnapper",
+    type="library",
     homepage="https://github.com/Xwei1645/nonebot-plugin-message-snapper-core",
-    config=Config,
-    supported_adapters=inherit_supported_adapters(
-        "nonebot_plugin_alconna", "nonebot_plugin_uninfo"
-    ),
-    # supported_adapters={"~onebot.v11"}, # 仅 onebot
-    extra={"author": "Xwei1645 <your@mail.com>"},
 )
 
-from arclet.alconna import Args, Option, Alconna, Arparma, Subcommand
-from nonebot_plugin_alconna import on_alconna
-from nonebot_plugin_alconna.uniseg import UniMessage
-
-pip = on_alconna(
-    Alconna(
-        "pip",
-        Subcommand(
-            "install",
-            Args["package", str],
-            Option("-r|--requirement", Args["file", str]),
-            Option("-i|--index-url", Args["url", str]),
-        ),
-    )
-)
-
-
-@pip.handle()
-async def _(result: Arparma):
-    package: str = result.other_args["package"]
-    logger.info(f"installing {package}")
-    await UniMessage.text(package).send()
+__all__ = ["CacheManager", "MessageSnapper"]

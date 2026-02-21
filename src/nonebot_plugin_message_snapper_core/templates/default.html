@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Message Snap</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #f5f5f5;
+            width: 100%;
+            display: block;
+        }
+
+        .snapshot {
+            display: block;
+            width: 100%;
+            background: #f5f5f5;
+        }
+
+        .snapshot-header {
+            background: #fff;
+            padding: 12px 16px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .group-line {
+            font-size: 17px;
+            color: #000;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .group-name {
+            color: #000;
+        }
+
+        .member-count {
+            color: #888;
+            font-size: 15px;
+            font-weight: normal;
+        }
+
+        .message-area {
+            padding: 16px;
+        }
+
+        .message-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 6px;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            flex-shrink: 0;
+            background: #ccc;
+            overflow: hidden;
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .content {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            min-width: 0;
+        }
+
+        .sender-line {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 4px;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+
+        .badge-box {
+            border-radius: 6px;
+            padding: 1px 4px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 10px;
+            color: #fff;
+        }
+
+        .badge-box.owner {
+            background: linear-gradient(135deg, #f1bc54 0%, #e6a628 100%);
+        }
+
+        .badge-box.admin {
+            background: linear-gradient(135deg, #5cc7bc 0%, #40aba1 100%);
+        }
+
+        .badge-box.title {
+            background: linear-gradient(135deg, #c698e6 0%, #b078d9 100%);
+        }
+
+        .badge-box.member {
+            background: linear-gradient(135deg, #d4d4d4 0%, #bfbfbf 100%);
+        }
+
+        .sender-name {
+            font-size: 13px;
+            color: #5b5b5b;
+            white-space: normal;
+            word-break: break-word;
+            overflow-wrap: anywhere;
+        }
+
+        .bubble {
+            background: #fff;
+            border-radius: 8px;
+            padding: 10px 12px;
+            display: inline-block;
+            max-width: 640px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .bubble.no-bubble {
+            background: transparent;
+            border-radius: 0;
+            padding: 0;
+            box-shadow: none;
+        }
+
+        .bubble-text {
+            font-size: 16px;
+            line-height: 1.5;
+            color: #000;
+            white-space: pre-wrap;
+            word-break: break-word;
+            overflow-wrap: anywhere;
+        }
+
+        .bubble-segment+.bubble-segment {
+            margin-top: 6px;
+        }
+
+        .message-image {
+            display: block;
+            max-width: 320px;
+            max-height: 420px;
+            border-radius: 6px;
+        }
+
+        .reply-box {
+            background: #e8e8e8;
+            border-radius: 6px;
+            padding: 7px 9px;
+            margin-bottom: 8px;
+            max-width: 100%;
+        }
+
+        .reply-header {
+            font-size: 11px;
+            color: #555;
+            margin-bottom: 2px;
+            white-space: normal;
+            word-break: break-word;
+            overflow-wrap: anywhere;
+        }
+
+        .reply-content {
+            font-size: 13px;
+            color: #333;
+            white-space: pre-wrap;
+            word-break: break-word;
+            overflow-wrap: anywhere;
+        }
+
+        .reply-segment+.reply-segment {
+            margin-top: 4px;
+        }
+
+        .reply-image {
+            display: block;
+            max-width: 220px;
+            max-height: 260px;
+            border-radius: 5px;
+        }
+
+        .time-line {
+            font-size: 10px;
+            color: #999;
+            margin-top: 4px;
+            margin-left: 48px;
+        }
+    </style>
+</head>
+
+<body style='font-family: "{{ font_family }}", sans-serif;'>
+    <div class="snapshot">
+        <div class="snapshot-header">
+            <div class="group-line">
+                <span class="group-name">{{ group_name }}</span>
+                <span class="member-count">({{ member_count }})</span>
+            </div>
+        </div>
+        <div class="message-area">
+            <div class="message-row">
+                <div class="avatar">
+                    <img src="{{ avatar_url }}" alt="avatar" onerror="this.style.display='none'">
+                </div>
+                <div class="content">
+                    <div class="sender-line">
+                        {% if level or title or role == "owner" or role == "admin" %}
+                        <div
+                            class="badge-box {% if role == 'owner' %}owner{% elif role == 'admin' %}admin{% elif title %}title{% else %}member{% endif %}">
+                            {% if level %}LV{{ level }}{% endif %}
+                            {% if level and (title or role == "owner" or role == "admin") %} {% endif %}
+                            {% if title %}{{ title }}{% elif role == "owner" %}群主{% elif role == "admin" %}管理员{% endif
+                            %}
+                        </div>
+                        {% endif %}
+                        <span class="sender-name">{{ sender_name }}</span>
+                    </div>
+                    <div class="bubble{% if single_image_only %} no-bubble{% endif %}">
+                        {% if reply_preview %}
+                        <div class="reply-box">
+                            <div class="reply-header">{{ reply_preview.sender_name }} {{ reply_preview.time }}</div>
+                            {% if reply_preview.segments %}
+                            {% for segment in reply_preview.segments %}
+                            {% if segment.type == "image" %}
+                            <div class="reply-segment">
+                                <img class="reply-image" src="{{ segment.content }}" alt="reply-image">
+                            </div>
+                            {% else %}
+                            <div class="reply-segment reply-content">{{ segment.content }}</div>
+                            {% endif %}
+                            {% endfor %}
+                            {% else %}
+                            <div class="reply-content">{{ reply_preview.content }}</div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                        {% for segment in message_segments %}
+                        {% if segment.type == "image" %}
+                        <div class="bubble-segment">
+                            <img class="message-image" src="{{ segment.content }}" alt="image">
+                        </div>
+                        {% else %}
+                        <div class="bubble-segment bubble-text">{{ segment.content }}</div>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div class="time-line">{{ time }}</div>
+        </div>
+    </div>
+</body>
+
+</html>
