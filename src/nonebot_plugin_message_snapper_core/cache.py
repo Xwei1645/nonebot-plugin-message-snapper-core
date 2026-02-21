@@ -2,6 +2,7 @@ import os
 import json
 import asyncio
 from typing import Any
+from pathlib import Path
 from datetime import datetime
 from urllib.request import urlopen
 
@@ -166,7 +167,7 @@ class CacheManager:
     async def _download_and_save_qface(
         self,
         face_id: int,
-        local_path: AsyncPath,
+        local_path: Path,
     ) -> None:
         url = f"https://koishi.js.org/QFace/assets/qq_emoji/{face_id}/png/{face_id}.png"
         tmp_path = local_path.with_suffix(".tmp")
@@ -182,7 +183,7 @@ class CacheManager:
         except Exception as e:
             # cleanup temp file if exists
             try:
-                await AsyncPath(tmp_path).remove()
+                await asyncio.to_thread(os.remove, str(tmp_path))
             except Exception:
                 pass
             logger.warning(f"下载 QFace 表情失败({face_id}): {e}")
