@@ -26,44 +26,24 @@ class MessageSnapper:
         self,
         template: str = "default.html",
         font_family: str | None = None,
-        group_cache_hours: float = 72.0,
-        member_cache_hours: float = 72.0,
         template_path: Path | None = None,
     ):
         self._template = template
         self._font_family = font_family or DEFAULT_FONT_FAMILY
-        self._cache_manager = CacheManager(group_cache_hours, member_cache_hours)
+        self._cache_manager = CacheManager()
         self._template_path = template_path or Path(__file__).parent / "templates"
 
-    async def load_cache(self) -> None:
-        await self._cache_manager.load()
-
-    async def save_cache(self) -> None:
-        await self._cache_manager.save()
-
     async def get_group_info(self, bot: Bot, group_id: int) -> dict[str, Any]:
-        cached = self._cache_manager.get_group(group_id)
-        if cached is not None:
-            return cached
-
         try:
-            info = await bot.get_group_info(group_id=group_id)
-            self._cache_manager.set_group(group_id, info)
-            return info
+            return await bot.get_group_info(group_id=group_id)
         except Exception:
             return {"group_name": "未知群", "member_count": 0}
 
     async def get_member_info(
         self, bot: Bot, group_id: int, user_id: int
     ) -> dict[str, Any]:
-        cached = self._cache_manager.get_member(group_id, user_id)
-        if cached is not None:
-            return cached
-
         try:
-            info = await bot.get_group_member_info(group_id=group_id, user_id=user_id)
-            self._cache_manager.set_member(group_id, user_id, info)
-            return info
+            return await bot.get_group_member_info(group_id=group_id, user_id=user_id)
         except Exception:
             return {}
 
