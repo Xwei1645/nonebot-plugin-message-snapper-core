@@ -220,8 +220,16 @@ class MessageSnapper:
                 else:
                     parts.append({"type": "text", "content": "[图片]"})
             elif seg.type == "face":
-                face_id = seg.data.get("id", 0)
-                parts.append({"type": "text", "content": f"[表情:{face_id}]"})
+                raw_face_id = seg.data.get("id", 0)
+                try:
+                    face_id = int(raw_face_id)
+                except (TypeError, ValueError):
+                    face_id = -1
+                qface_image = await self._cache_manager.get_qface_image(face_id)
+                if qface_image:
+                    parts.append({"type": "qface", "content": qface_image})
+                else:
+                    parts.append({"type": "text", "content": f"[表情:{raw_face_id}]"})
             elif seg.type == "emoji":
                 parts.append(
                     {"type": "text", "content": seg.data.get("text", "[emoji]")}
@@ -268,6 +276,8 @@ class MessageSnapper:
         for seg in await self._extract_message_segments(bot, group_id, message):
             if seg["type"] == "image":
                 parts.append("[图片]")
+            elif seg["type"] == "qface":
+                parts.append("[表情]")
             else:
                 parts.append(seg["content"])
         return "".join(parts).strip()

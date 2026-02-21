@@ -146,6 +146,21 @@
             overflow-wrap: anywhere;
         }
 
+        .bubble-inline-segment {
+            display: inline;
+            font-size: 16px;
+            line-height: 1.5;
+            margin: 0;
+            padding: 0;
+        }
+
+        .message-qface {
+            display: inline-block;
+            height: 1em;
+            width: auto;
+            vertical-align: -0.12em;
+        }
+
         .bubble-segment+.bubble-segment {
             margin-top: 6px;
         }
@@ -180,6 +195,13 @@
             white-space: pre-wrap;
             word-break: break-word;
             overflow-wrap: anywhere;
+        }
+
+        .reply-qface {
+            display: inline-block;
+            height: 1em;
+            width: auto;
+            vertical-align: -0.12em;
         }
 
         .reply-segment+.reply-segment {
@@ -233,29 +255,35 @@
                         <div class="reply-box">
                             <div class="reply-header">{{ reply_preview.sender_name }} {{ reply_preview.time }}</div>
                             {% if reply_preview.segments %}
-                            {% for segment in reply_preview.segments %}
+                            {%- for segment in reply_preview.segments -%}
                             {% if segment.type == "image" %}
                             <div class="reply-segment">
                                 <img class="reply-image" src="{{ segment.content }}" alt="reply-image">
                             </div>
+                            {% elif segment.type == "qface" %}
+                            <span class="reply-segment reply-content"><img class="reply-qface" src="{{ segment.content }}"
+                                    alt="QFace"></span>
                             {% else %}
-                            <div class="reply-segment reply-content">{{ segment.content }}</div>
+                            <span class="reply-segment reply-content">{{ segment.content }}</span>
                             {% endif %}
-                            {% endfor %}
+                            {%- endfor -%}
                             {% else %}
                             <div class="reply-content">{{ reply_preview.content }}</div>
                             {% endif %}
                         </div>
                         {% endif %}
-                        {% for segment in message_segments %}
+                        {%- for segment in message_segments -%}
                         {% if segment.type == "image" %}
                         <div class="bubble-segment">
                             <img class="message-image" src="{{ segment.content }}" alt="image">
                         </div>
+                        {% elif segment.type == "qface" %}
+                        <span class="bubble-inline-segment"><img class="message-qface" src="{{ segment.content }}"
+                                alt="QFace"></span>
                         {% else %}
-                        <div class="bubble-segment bubble-text">{{ segment.content }}</div>
+                        <span class="bubble-inline-segment bubble-text">{{ segment.content }}</span>
                         {% endif %}
-                        {% endfor %}
+                        {%- endfor -%}
                     </div>
                 </div>
             </div>
