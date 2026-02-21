@@ -163,9 +163,7 @@ class MessageSnapper:
                 or sender.get("nickname")
                 or str(sender.get("user_id") or "未知用户")
             )
-            quoted_message = self._normalize_message_payload(
-                quoted.get("message", "")
-            )
+            quoted_message = self._normalize_message_payload(quoted.get("message", ""))
             segments = await self._extract_message_segments(
                 bot, group_id, quoted_message
             )

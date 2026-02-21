@@ -35,7 +35,7 @@ jobs:
         if: steps.version.outputs.VERSION != steps.version.outputs.TAG_VERSION
         run: exit 1
 
-      - name: Build 
+      - name: Build
         run: |
           uv build
           uv publish
@@ -44,5 +44,3 @@ jobs:
         run: gh release upload --clobber ${{ steps.version.outputs.TAG_NAME }} dist/*.tar.gz dist/*.whl
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      

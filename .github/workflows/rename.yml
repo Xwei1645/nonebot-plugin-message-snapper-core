@@ -32,7 +32,7 @@ jobs:
           echo "Repository owner: $REPO_OWNER"
           echo "Repository name: $REPO_NAME"
           echo "Repository underscore name: $UNDERSCORE_REPO_NAME"
-      
+
       - name: Update README.md
         run: |
           # 替换 README.md 中的内容
